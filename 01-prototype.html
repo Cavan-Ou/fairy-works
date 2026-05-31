@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>余响 — 数字生命关怀</title>
+<style>
+/* ===== Reset & Base ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  background:#0a0a0f;
+  color:#e8e4df;
+  overflow-x:hidden;
+  min-height:100vh;
+}
+
+/* ===== Mobile Container ===== */
+.phone-frame{
+  max-width:375px;
+  margin:0 auto;
+  min-height:100vh;
+  position:relative;
+  overflow:hidden;
+}
+
+/* ===== Background Atmosphere ===== */
+.bg-atmosphere{
+  position:fixed;top:0;left:50%;transform:translateX(-50%);
+  width:375px;height:100%;
+  pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 600px 400px at 50% 20%,rgba(88,66,44,0.15),transparent),
+    radial-gradient(ellipse 400px 300px at 30% 70%,rgba(60,48,80,0.1),transparent);
+}
+.bg-particles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+
+/* ===== Screen System ===== */
+.screen{
+  position:absolute;top:0;left:0;width:100%;min-height:100vh;
+  display:none;flex-direction:column;
+  padding:24px 20px 40px;
+  z-index:1;
+  opacity:0;
+  transition:opacity 0.6s ease,transform 0.6s ease;
+  transform:translateY(20px);
+}
+.screen.active{
+  display:flex;
+  opacity:1;
+  transform:translateY(0);
+}
+.screen.entering{
+  display:flex;
+  animation:screenIn 0.6s ease forwards;
+}
+.screen.leaving{
+  animation:screenOut 0.4s ease forwards;
+}
+@keyframes screenIn{
+  from{opacity:0;transform:translateY(30px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes screenOut{
+  from{opacity:1;transform:translateY(0)}
+  to{opacity:0;transform:translateY(-20px)}
+}
+
+/* ===== Progress Bar ===== */
+.progress-bar{
+  display:flex;gap:6px;
+  margin-bottom:32px;
+  padding:0 4px;
+}
+.progress-step{
+  flex:1;height:3px;border-radius:2px;
+  background:rgba(255,255,255,0.08);
+  transition:background 0.5s ease;
+  position:relative;
+  overflow:hidden;
+}
+.progress-step.done{background:rgba(196,167,120,0.5)}
+.progress-step.current{
+  background:rgba(196,167,120,0.3);
+}
+.progress-step.current::after{
+  content:'';position:absolute;left:0;top:0;
+  height:100%;width:0;
+  background:linear-gradient(90deg,rgba(196,167,120,0.8),rgba(196,167,120,0.4));
+  border-radius:2px;
+  animation:progressFill 2s ease forwards;
+}
+@keyframes progressFill{to{width:100%}}
+
+/* ===== AI Chat Bubble ===== */
+.ai-section{margin-bottom:24px}
+.ai-avatar{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:12px;
+}
+.ai-avatar .icon{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,#c4a778,#8b7355);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.ai-avatar .label{
+  font-size:13px;color:rgba(196,167,120,0.8);
+  letter-spacing:1px;
+}
+.ai-bubble{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(196,167,120,0.12);
+  border-radius:4px 16px 16px 16px;
+  padding:16px 18px;
+  font-size:14.5px;line-height:1.75;
+  color:rgba(232,228,223,0.88);
+  position:relative;
+}
+.ai-bubble .typing-dots{
+  display:inline-flex;gap:4px;
+}
+.ai-bubble .typing-dots span{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(196,167,120,0.5);
+  animation:dotPulse 1.4s infinite ease-in-out;
+}
+.ai-bubble .typing-dots span:nth-child(2){animation-delay:0.2s}
+.ai-bubble .typing-dots span:nth-child(3){animation-delay:0.4s}
+@keyframes dotPulse{
+  0%,80%,100%{opacity:0.3;transform:scale(0.8)}
+  40%{opacity:1;transform:scale(1)}
+}
+
+/* ===== Main Title ===== */
+.main-title{
+  font-size:26px;font-weight:300;
+  letter-spacing:3px;
+  margin-bottom:8px;
+  background:linear-gradient(135deg,#e8e4df,#c4a778);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.sub-title{
+  font-size:13px;
+  color:rgba(232,228,223,0.4);
+  letter-spacing:2px;
+  margin-bottom:40px;
+}
+
+/* ===== Cards ===== */
+.card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:10px;
+  cursor:pointer;
+  transition:all 0.3s ease;
+  display:flex;align-items:center;gap:14px;
+}
+.card:hover,.card:active{
+  background:rgba(196,167,120,0.06);
+  border-color:rgba(196,167,120,0.15);
+  transform:translateY(-1px);
+}
+.card.selected{
+  background:rgba(196,167,120,0.08);
+  border-color:rgba(196,167,120,0.25);
+}
+.card .card-icon{
+  width:40px;height:40px;border-radius:10px;
+  background:rgba(196,167,120,0.08);
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.card .card-body{flex:1}
+.card .card-title{font-size:15px;font-weight:500;color:#e8e4df;margin-bottom:3px}
+.card .card-desc{font-size:12px;color:rgba(232,228,223,0.4);line-height:1.4}
+.card .card-arrow{
+  color:rgba(196,167,120,0.3);font-size:14px;
+  transition:transform 0.3s ease;
+}
+.card:hover .card-arrow{transform:translateX(3px);color:rgba(196,167,120,0.6)}
+
+/* ===== Asset Category Cards ===== */
+.asset-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.asset-card{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;
+  padding:18px 14px;
+  cursor:pointer;
+  transition:all 0.3s ease;
+  text-align:center;
+  position:relative;
+}
+.asset-card:hover{background:rgba(196,167,120,0.05);border-color:rgba(196,167,120,0.12)}
+.asset-card.selected{
+  background:rgba(196,167,120,0.08);
+  border-color:rgba(196,167,120,0.3);
+}
+.asset-card.selected::after{
+  content:'✓';position:absolute;top:8px;right:10px;
+  font-size:11px;color:rgba(196,167,120,0.8);
+}
+.asset-card .icon{font-size:28px;margin-bottom:8px;display:block}
+.asset-card .name{font-size:14px;color:#e8e4df;font-weight:500}
+.asset-card .count{font-size:11px;color:rgba(232,228,223,0.3);margin-top:4px}
+
+/* ===== Action Options ===== */
+.action-list{margin-bottom:20px}
+.action-option{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;
+  margin-bottom:8px;
+  cursor:pointer;
+  transition:all 0.3s ease;
+  background:rgba(255,255,255,0.02);
+}
+.action-option:hover{
+  background:rgba(196,167,120,0.04);
+  border-color:rgba(196,167,120,0.12);
+}
+.action-option.selected{
+  background:rgba(196,167,120,0.08);
+  border-color:rgba(196,167,120,0.25);
+}
+.action-option .radio{
+  width:18px;height:18px;border-radius:50%;
+  border:2px solid rgba(255,255,255,0.15);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all 0.3s ease;
+}
+.action-option.selected .radio{
+  border-color:rgba(196,167,120,0.6);
+}
+.action-option.selected .radio::after{
+  content:'';width:8px;height:8px;border-radius:50%;
+  background:rgba(196,167,120,0.8);
+}
+.action-option .text{font-size:14px;color:rgba(232,228,223,0.8)}
+.action-option .hint{font-size:11px;color:rgba(232,228,223,0.3);margin-top:2px}
+
+/* ===== Buttons ===== */
+.btn-primary{
+  width:100%;padding:15px;
+  border:none;border-radius:10px;
+  font-size:15px;font-weight:500;
+  cursor:pointer;
+  transition:all 0.3s ease;
+  letter-spacing:1px;
+  background:linear-gradient(135deg,rgba(196,167,120,0.2),rgba(196,167,120,0.1));
+  color:#c4a778;
+  border:1px solid rgba(196,167,120,0.2);
+}
+.btn-primary:hover{
+  background:linear-gradient(135deg,rgba(196,167,120,0.3),rgba(196,167,120,0.15));
+  transform:translateY(-1px);
+}
+.btn-primary:disabled{
+  opacity:0.3;cursor:not-allowed;transform:none;
+}
+.btn-secondary{
+  width:100%;padding:13px;
+  border:none;border-radius:10px;
+  font-size:14px;
+  cursor:pointer;
+  transition:all 0.3s ease;
+  background:transparent;
+  color:rgba(232,228,223,0.4);
+  border:1px solid rgba(255,255,255,0.06);
+}
+.btn-secondary:hover{
+  color:rgba(232,228,223,0.6);
+  border-color:rgba(255,255,255,0.1);
+}
+.btn-text{
+  background:none;border:none;
+  color:rgba(196,167,120,0.6);
+  font-size:13px;cursor:pointer;
+  padding:8px 0;
+  transition:color 0.3s;
+}
+.btn-text:hover{color:rgba(196,167,120,0.9)}
+
+/* ===== Section Label ===== */
+.section-label{
+  font-size:12px;
+  color:rgba(196,167,120,0.5);
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+.section-title{
+  font-size:18px;font-weight:500;
+  color:#e8e4df;margin-bottom:6px;
+}
+.section-desc{
+  font-size:13px;color:rgba(232,228,223,0.4);
+  margin-bottom:20px;line-height:1.6;
+}
+
+/* ===== Input Field ===== */
+.input-group{margin-bottom:14px}
+.input-label{
+  font-size:12px;color:rgba(232,228,223,0.5);
+  margin-bottom:6px;display:block;
+}
+.input-field{
+  width:100%;padding:12px 14px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;
+  color:#e8e4df;font-size:14px;
+  transition:border-color 0.3s;
+  outline:none;
+}
+.input-field:focus{
+  border-color:rgba(196,167,120,0.3);
+}
+.input-field::placeholder{color:rgba(232,228,223,0.2)}
+
+/* ===== Beneficiary Tag ===== */
+.tag-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.tag{
+  padding:8px 16px;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;
+  font-size:13px;color:rgba(232,228,223,0.6);
+  cursor:pointer;transition:all 0.3s;
+  background:rgba(255,255,255,0.02);
+}
+.tag:hover{border-color:rgba(196,167,120,0.2);color:rgba(232,228,223,0.8)}
+.tag.selected{
+  background:rgba(196,167,120,0.1);
+  border-color:rgba(196,167,120,0.3);
+  color:#c4a778;
+}
+
+/* ===== Preview Will ===== */
+.will-preview{
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(196,167,120,0.1);
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:20px;
+  font-size:13px;line-height:2;
+  color:rgba(232,228,223,0.7);
+}
+.will-preview .will-header{
+  text-align:center;
+  padding-bottom:16px;
+  margin-bottom:16px;
+  border-bottom:1px solid rgba(196,167,120,0.1);
+}
+.will-preview .will-header h3{
+  font-size:16px;font-weight:400;
+  color:#c4a778;letter-spacing:3px;
+}
+.will-preview .will-header p{
+  font-size:11px;color:rgba(232,228,223,0.3);
+  margin-top:4px;
+}
+.will-preview .will-section{
+  margin-bottom:16px;
+  padding-bottom:16px;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+}
+.will-preview .will-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.will-preview .will-section h4{
+  font-size:13px;font-weight:500;
+  color:rgba(196,167,120,0.7);
+  margin-bottom:8px;
+}
+.will-preview .will-item{
+  display:flex;justify-content:space-between;
+  padding:4px 0;
+}
+.will-preview .will-item .label{color:rgba(232,228,223,0.4)}
+.will-preview .will-item .value{color:rgba(232,228,223,0.8)}
+
+/* ===== Completion Screen ===== */
+.completion-icon{
+  width:80px;height:80px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(196,167,120,0.15),rgba(196,167,120,0.03));
+  margin:60px auto 24px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.completion-icon::before{
+  content:'';position:absolute;
+  width:100px;height:100px;border-radius:50%;
+  border:1px solid rgba(196,167,120,0.08);
+  animation:ripple 3s ease-out infinite;
+}
+@keyframes ripple{
+  0%{transform:scale(0.8);opacity:0.5}
+  100%{transform:scale(1.3);opacity:0}
+}
+.completion-icon .inner{
+  font-size:36px;
+  animation:gentleFloat 4s ease-in-out infinite;
+}
+@keyframes gentleFloat{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-5px)}
+}
+.completion-quote{
+  text-align:center;
+  font-size:15px;
+  color:rgba(232,228,223,0.7);
+  line-height:1.8;
+  margin-bottom:8px;
+  font-weight:300;
+}
+.completion-author{
+  text-align:center;
+  font-size:12px;
+  color:rgba(196,167,120,0.4);
+  margin-bottom:40px;
+}
+
+/* ===== Welcome Screen Special ===== */
+.welcome-logo{
+  margin-top:80px;margin-bottom:40px;
+  text-align:center;
+}
+.welcome-logo .cn{
+  font-size:42px;font-weight:200;
+  letter-spacing:12px;
+  background:linear-gradient(135deg,#e8e4df 30%,#c4a778);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.welcome-logo .en{
+  font-size:11px;
+  color:rgba(232,228,223,0.2);
+  letter-spacing:6px;
+  margin-top:8px;
+  text-transform:uppercase;
+}
+.welcome-divider{
+  width:40px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(196,167,120,0.3),transparent);
+  margin:30px auto;
+}
+.welcome-poem{
+  text-align:center;
+  font-size:13px;
+  color:rgba(232,228,223,0.35);
+  line-height:2.2;
+  margin-bottom:50px;
+  font-weight:300;
+}
+.welcome-actions{
+  margin-top:auto;
+  padding-bottom:20px;
+}
+
+/* ===== State Cards (Step 1) ===== */
+.state-card{
+  padding:16px 18px;
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;
+  margin-bottom:10px;
+  cursor:pointer;
+  transition:all 0.3s ease;
+  background:rgba(255,255,255,0.02);
+}
+.state-card:hover{
+  background:rgba(196,167,120,0.04);
+  border-color:rgba(196,167,120,0.12);
+}
+.state-card.selected{
+  background:rgba(196,167,120,0.08);
+  border-color:rgba(196,167,120,0.25);
+}
+.state-card .emoji{font-size:22px;margin-bottom:8px}
+.state-card .title{font-size:15px;font-weight:500;color:#e8e4df;margin-bottom:4px}
+.state-card .desc{font-size:12px;color:rgba(232,228,223,0.4);line-height:1.5}
+
+/* ===== Asset Detail ===== */
+.asset-detail-header{
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:20px;
+  padding:16px;
+  background:rgba(196,167,120,0.04);
+  border-radius:12px;
+  border:1px solid rgba(196,167,120,0.1);
+}
+.asset-detail-header .icon{font-size:32px}
+.asset-detail-header .name{font-size:16px;font-weight:500;color:#e8e4df}
+.asset-detail-header .type{font-size:12px;color:rgba(196,167,120,0.5)}
+
+/* ===== Spacer ===== */
+.spacer{flex:1}
+
+/* ===== Skip Link ===== */
+.skip-area{
+  display:flex;justify-content:center;
+  padding:16px 0;
+}
+.skip-link{
+  font-size:12px;
+  color:rgba(232,228,223,0.25);
+  text-decoration:none;
+  cursor:pointer;
+  transition:color 0.3s;
+  letter-spacing:1px;
+}
+.skip-link:hover{color:rgba(232,228,223,0.5)}
+
+/* ===== Nav Row ===== */
+.nav-row{
+  display:flex;gap:10px;
+  margin-top:16px;
+}
+
+/* ===== AI Suggestion Chip ===== */
+.ai-suggest{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 12px;
+  border-radius:16px;
+  background:rgba(196,167,120,0.06);
+  border:1px solid rgba(196,167,120,0.12);
+  font-size:12px;
+  color:rgba(196,167,120,0.7);
+  cursor:pointer;
+  transition:all 0.3s;
+  margin:0 4px 8px 0;
+}
+.ai-suggest:hover{
+  background:rgba(196,167,120,0.12);
+  border-color:rgba(196,167,120,0.2);
+}
+.ai-suggest .sparkle{font-size:11px}
+
+/* ===== Stat Summary ===== */
+.stat-row{
+  display:flex;gap:10px;margin-bottom:20px;
+}
+.stat-box{
+  flex:1;text-align:center;
+  padding:14px 8px;
+  background:rgba(255,255,255,0.02);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:10px;
+}
+.stat-box .num{
+  font-size:24px;font-weight:300;
+  color:#c4a778;
+}
+.stat-box .label{
+  font-size:11px;
+  color:rgba(232,228,223,0.3);
+  margin-top:4px;
+}
+
+/* ===== Checkbox style ===== */
+.check-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:12px 0;
+  border-bottom:1px solid rgba(255,255,255,0.03);
+  cursor:pointer;
+}
+.check-item .check-box{
+  width:18px;height:18px;
+  border:1.5px solid rgba(255,255,255,0.15);
+  border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+  transition:all 0.3s;
+}
+.check-item.checked .check-box{
+  background:rgba(196,167,120,0.2);
+  border-color:rgba(196,167,120,0.5);
+}
+.check-item.checked .check-box::after{
+  content:'✓';font-size:11px;color:#c4a778;
+}
+.check-item .check-label{font-size:14px;color:rgba(232,228,223,0.7)}
+.check-item .check-sub{font-size:11px;color:rgba(232,228,223,0.3);margin-top:2px}
+
+/* ===== Fade animations ===== */
+.fade-in-up{
+  opacity:0;transform:translateY(15px);
+  animation:fadeInUp 0.5s ease forwards;
+}
+@keyframes fadeInUp{
+  to{opacity:1;transform:translateY(0)}
+}
+.delay-1{animation-delay:0.1s}
+.delay-2{animation-delay:0.2s}
+.delay-3{animation-delay:0.3s}
+.delay-4{animation-delay:0.4s}
+.delay-5{animation-delay:0.5s}
+.delay-6{animation-delay:0.6s}
+.delay-7{animation-delay:0.7s}
+.delay-8{animation-delay:0.8s}
+</style>
+</head>
+<body>
+
+<div class="phone-frame">
+<div class="bg-atmosphere"></div>
+
+<!-- ===================== SCREEN 0: Welcome ===================== -->
+<div class="screen active" id="screen-0">
+  <div class="welcome-logo fade-in-up">
+    <div class="cn">余响</div>
+    <div class="en">YÙ XIǍNG</div>
+  </div>
+
+  <div class="welcome-divider fade-in-up delay-1"></div>
+
+  <div class="welcome-poem fade-in-up delay-2">
+    余音绕梁，三日不绝<br>
+    是告别的回响<br>
+    也是生命的延续
+  </div>
+
+  <div class="ai-section fade-in-up delay-3">
+    <div class="ai-avatar">
+      <div class="icon">余</div>
+      <div class="label">余响 · AI 生命关怀</div>
+    </div>
+    <div class="ai-bubble">
+      你好，我是余响。<br><br>
+      我不是冷冰冰的工具，而是一个陪你认真思考「数字生命」的伙伴。<br><br>
+      每个人的数字世界都独一无二——那些聊天记录、照片、社交账号，都是你存在过的证明。提前为它们做一个温柔的安排，不是晦气，而是一种清醒的爱。<br><br>
+      准备好了吗？我们慢慢来。
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="welcome-actions fade-in-up delay-4">
+    <button class="btn-primary" onclick="goToScreen(1)">开始规划 →</button>
+    <div class="skip-area">
+      <span class="skip-link" onclick="goToScreen(3)">先看看示例，稍后再填</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SCREEN 1: User State (Guidance) ===================== -->
+<div class="screen" id="screen-1">
+  <div class="progress-bar">
+    <div class="progress-step current"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+  </div>
+
+  <div class="ai-section fade-in-up">
+    <div class="ai-avatar">
+      <div class="icon">余</div>
+      <div class="label">余响 · 引导</div>
+    </div>
+    <div class="ai-bubble">
+      在开始之前，我想先了解一下你——<br>
+      你现在是什么样的状态？这会帮助我更好地陪伴你。
+    </div>
+  </div>
+
+  <div class="section-label fade-in-up delay-1">选择你的状态</div>
+
+  <div class="state-card fade-in-up delay-2" onclick="selectState(this,'calm')">
+    <div class="emoji">🧘</div>
+    <div class="title">我很好，只是想提前安排</div>
+    <div class="desc">理性规划，给自己的数字世界留一份从容</div>
+  </div>
+
+  <div class="state-card fade-in-up delay-3" onclick="selectState(this,'anxious')">
+    <div class="emoji">🌊</div>
+    <div class="title">有点不安，想给自己留个保障</div>
+    <div class="desc">独居或常出差，担心意外发生时无人知晓</div>
+  </div>
+
+  <div class="state-card fade-in-up delay-4" onclick="selectState(this,'grieving')">
+    <div class="emoji">🍃</div>
+    <div class="title">刚经历了告别，想整理些什么</div>
+    <div class="desc">亲人的离去让你开始思考自己的数字遗产</div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="skip-area">
+    <span class="skip-link" onclick="goToScreen(2)">跳过这一步</span>
+  </div>
+</div>
+
+<!-- ===================== SCREEN 2: Asset Categories ===================== -->
+<div class="screen" id="screen-2">
+  <div class="progress-bar">
+    <div class="progress-step done"></div>
+    <div class="progress-step current"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+  </div>
+
+  <div class="ai-section fade-in-up">
+    <div class="ai-avatar">
+      <div class="icon">余</div>
+      <div class="label">余响 · 数字资产盘点</div>
+    </div>
+    <div class="ai-bubble">
+      接下来，我们来盘点一下你的数字世界。<br><br>
+      不需要想得太复杂——就是看看你有哪些「数字角落」需要安排。可以多选，也可以先选几个，其他的以后再加。
+    </div>
+  </div>
+
+  <div class="section-label fade-in-up delay-1">你有哪些数字资产？</div>
+
+  <div class="asset-grid fade-in-up delay-2">
+    <div class="asset-card" onclick="toggleAsset(this,'social')">
+      <span class="icon">💬</span>
+      <div class="name">社交账号</div>
+      <div class="count">微信、微博、抖音…</div>
+    </div>
+    <div class="asset-card" onclick="toggleAsset(this,'storage')">
+      <span class="icon">☁️</span>
+      <div class="name">云存储</div>
+      <div class="count">iCloud、网盘、相册…</div>
+    </div>
+    <div class="asset-card" onclick="toggleAsset(this,'photos')">
+      <span class="icon">📷</span>
+      <div class="name">照片与视频</div>
+      <div class="count">人生片段的记录</div>
+    </div>
+    <div class="asset-card" onclick="toggleAsset(this,'chat')">
+      <span class="icon">💌</span>
+      <div class="name">聊天记录</div>
+      <div class="count">那些没说完的话</div>
+    </div>
+    <div class="asset-card" onclick="toggleAsset(this,'finance')">
+      <span class="icon">🏦</span>
+      <div class="name">金融账号</div>
+      <div class="count">支付宝、银行卡…</div>
+    </div>
+    <div class="asset-card" onclick="toggleAsset(this,'game')">
+      <span class="icon">🎮</span>
+      <div class="name">游戏装备</div>
+      <div class="count">Steam、原神…</div>
+    </div>
+    <div class="asset-card" onclick="toggleAsset(this,'email')">
+      <span class="icon">✉️</span>
+      <div class="name">邮箱</div>
+      <div class="count">Gmail、QQ邮箱…</div>
+    </div>
+    <div class="asset-card" onclick="toggleAsset(this,'other')">
+      <span class="icon">✨</span>
+      <div class="name">其他</div>
+      <div class="count">博客、域名…</div>
+    </div>
+  </div>
+
+  <div class="ai-suggest fade-in-up delay-3" onclick="aiSuggest()">
+    <span class="sparkle">✦</span> 让AI帮我分析一下
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="nav-row fade-in-up delay-4">
+    <button class="btn-secondary" style="flex:1" onclick="goToScreen(1)">← 上一步</button>
+    <button class="btn-primary" style="flex:2" id="btn-to-detail" disabled onclick="goToScreen(3)">继续配置 →</button>
+  </div>
+</div>
+
+<!-- ===================== SCREEN 3: Asset Detail Configuration ===================== -->
+<div class="screen" id="screen-3">
+  <div class="progress-bar">
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step current"></div>
+    <div class="progress-step"></div>
+  </div>
+
+  <div class="ai-section fade-in-up">
+    <div class="ai-avatar">
+      <div class="icon">余</div>
+      <div class="label">余响 · 逐项安排</div>
+    </div>
+    <div class="ai-bubble">
+      我们先从「<span id="current-asset-name">社交账号</span>」开始。<br><br>
+      想一想：如果有一天你不在了，你希望这些账号被怎样对待？没有标准答案，按你的心意来。
+    </div>
+  </div>
+
+  <div class="asset-detail-header fade-in-up delay-1">
+    <span class="icon" id="detail-icon">💬</span>
+    <div>
+      <div class="name" id="detail-name">社交账号</div>
+      <div class="type" id="detail-type">微信、微博、抖音等</div>
+    </div>
+  </div>
+
+  <div class="section-label fade-in-up delay-2">选择处理方式</div>
+
+  <div class="action-list fade-in-up delay-3">
+    <div class="action-option" onclick="selectAction(this,'memorial')">
+      <div class="radio"></div>
+      <div>
+        <div class="text">🕯️ 设为纪念状态</div>
+        <div class="hint">保留账号，但标记为纪念，他人可浏览不可互动</div>
+      </div>
+    </div>
+    <div class="action-option" onclick="selectAction(this,'bequeath')">
+      <div class="radio"></div>
+      <div>
+        <div class="text">🤝 遗赠给指定的人</div>
+        <div class="hint">将账号或其中的内容交给信任的人</div>
+      </div>
+    </div>
+    <div class="action-option" onclick="selectAction(this,'delete')">
+      <div class="radio"></div>
+      <div>
+        <div class="text">🌙 永久删除</div>
+        <div class="hint">不留痕迹，让它随风而去</div>
+      </div>
+    </div>
+    <div class="action-option" onclick="selectAction(this,'public')">
+      <div class="radio"></div>
+      <div>
+        <div class="text">📢 公开所有内容</div>
+        <div class="hint">让所有人看到，作为你存在过的证明</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label fade-in-up delay-4">受益人（可选）</div>
+
+  <div class="input-group fade-in-up delay-5">
+    <input class="input-field" type="text" placeholder="输入受益人姓名或称呼" id="beneficiary-input">
+  </div>
+
+  <div class="tag-list fade-in-up delay-5">
+    <span class="tag" onclick="selectTag(this)">家人</span>
+    <span class="tag" onclick="selectTag(this)">挚友</span>
+    <span class="tag" onclick="selectTag(this)">伴侣</span>
+    <span class="tag" onclick="selectTag(this)">公开</span>
+  </div>
+
+  <div class="ai-suggest fade-in-up delay-6" onclick="aiSuggestAction()">
+    <span class="sparkle">✦</span> AI建议：社交账号建议设为纪念状态
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="nav-row fade-in-up delay-7">
+    <button class="btn-secondary" style="flex:1" onclick="goToScreen(2)">← 上一步</button>
+    <button class="btn-primary" style="flex:2" id="btn-to-next-asset" onclick="nextAsset()">下一项 →</button>
+  </div>
+
+  <div class="skip-area">
+    <span class="skip-link" onclick="goToScreen(4)">跳过剩余，直接预览</span>
+  </div>
+</div>
+
+<!-- ===================== SCREEN 4: Preview / Confirm ===================== -->
+<div class="screen" id="screen-4">
+  <div class="progress-bar">
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step done"></div>
+    <div class="progress-step current"></div>
+  </div>
+
+  <div class="ai-section fade-in-up">
+    <div class="ai-avatar">
+      <div class="icon">余</div>
+      <div class="label">余响 · 确认</div>
+    </div>
+    <div class="ai-bubble">
+      你已经完成了数字遗嘱的初步配置。<br>
+      以下是预览，你可以随时回来修改。一切以你为准。
+    </div>
+  </div>
+
+  <div class="section-label fade-in-up delay-1">遗嘱预览</div>
+
+  <div class="will-preview fade-in-up delay-2">
+    <div class="will-header">
+      <h3>数 字 遗 嘱</h3>
+      <p>由「余响」协助生成 · <span id="will-date"></span></p>
+    </div>
+
+    <div class="will-section">
+      <h4>📋 资产总览</h4>
+      <div class="will-item">
+        <span class="label">已配置资产</span>
+        <span class="value" id="will-asset-count">3 项</span>
+      </div>
+      <div class="will-item">
+        <span class="label">受益人</span>
+        <span class="value" id="will-beneficiary">家人</span>
+      </div>
+    </div>
+
+    <div class="will-section" id="will-items-section">
+      <h4>💬 社交账号</h4>
+      <div class="will-item">
+        <span class="label">处理方式</span>
+        <span class="value">设为纪念状态</span>
+      </div>
+      <div class="will-item">
+        <span class="label">受益人</span>
+        <span class="value">家人</span>
+      </div>
+    </div>
+
+    <div class="will-section">
+      <h4>☁️ 云存储</h4>
+      <div class="will-item">
+        <span class="label">处理方式</span>
+        <span class="value">遗赠给指定的人</span>
+      </div>
+    </div>
+
+    <div class="will-section">
+      <h4>📷 照片与视频</h4>
+      <div class="will-item">
+        <span class="label">处理方式</span>
+        <span class="value">公开所有内容</span>
+      </div>
+    </div>
+
+    <div class="will-section">
+      <h4>🔐 安全说明</h4>
+      <div class="will-item">
+        <span class="label">加密等级</span>
+        <span class="value">AES-256</span>
+      </div>
+      <div class="will-item">
+        <span class="label">存储方式</span>
+        <span class="value">端到端加密</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="check-item" id="confirm-check" onclick="toggleCheck(this)">
+    <div class="check-box"></div>
+    <div>
+      <div class="check-label">我已阅读并确认以上内容</div>
+      <div class="check-sub">你随时可以回来修改，不必一次做完</div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="nav-row">
+    <button class="btn-secondary" style="flex:1" onclick="goToScreen(3)">← 修改</button>
+    <button class="btn-primary" style="flex:2" id="btn-confirm" disabled onclick="goToScreen(5)">确认保存</button>
+  </div>
+</div>
+
+<!-- ===================== SCREEN 5: Completion ===================== -->
+<div class="screen" id="screen-5">
+  <div class="completion-icon fade-in-up">
+    <div class="inner">🕊️</div>
+  </div>
+
+  <div class="completion-quote fade-in-up delay-1">
+    "向死而生的人<br>
+    &nbsp;不是看透了死亡<br>
+    &nbsp;而是终于认真地<br>
+    &nbsp;对待了活着"
+  </div>
+  <div class="completion-author fade-in-up delay-2">— 余响</div>
+
+  <div class="ai-section fade-in-up delay-3">
+    <div class="ai-bubble" style="border-radius:16px">
+      你做到了一件很多人不敢做的事。<br><br>
+      这份数字遗嘱不是终点，而是一个起点——它提醒你，那些数字世界的角落，都值得被认真对待。<br><br>
+      我会替你保管好它。你随时可以回来修改、补充。<br><br>
+      好好活着，然后好好安排。这本身就是一种温柔。🌿
+    </div>
+  </div>
+
+  <div class="stat-row fade-in-up delay-4">
+    <div class="stat-box">
+      <div class="num" id="stat-assets">3</div>
+      <div class="label">已配置资产</div>
+    </div>
+    <div class="stat-box">
+      <div class="num" id="stat-actions">3</div>
+      <div class="label">处理方式</div>
+    </div>
+    <div class="stat-box">
+      <div class="num">1</div>
+      <div class="label">受益人</div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <div class="fade-in-up delay-5">
+    <button class="btn-primary" onclick="goToScreen(0)">返回首页</button>
+    <div class="skip-area">
+      <span class="skip-link" onclick="alert('原型演示：此处将跳转到分享页面')">分享给受益人 →</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /phone-frame -->
+
+<script>
+// ===== State =====
+let currentScreen = 0;
+let selectedState = null;
+let selectedAssets = new Set();
+let assetActions = {};
+let currentAssetIndex = 0;
+const assetOrder = [];
+
+const assetMeta = {
+  social:   { icon:'💬', name:'社交账号', type:'微信、微博、抖音等' },
+  storage:  { icon:'☁️', name:'云存储', type:'iCloud、百度网盘等' },
+  photos:   { icon:'📷', name:'照片与视频', type:'人生片段的记录' },
+  chat:     { icon:'💌', name:'聊天记录', type:'那些没说完的话' },
+  finance:  { icon:'🏦', name:'金融账号', type:'支付宝、银行卡等' },
+  game:     { icon:'🎮', name:'游戏装备', type:'Steam、原神等' },
+  email:    { icon:'✉️', name:'邮箱', type:'Gmail、QQ邮箱等' },
+  other:    { icon:'✨', name:'其他', type:'博客、域名等' }
+};
+
+// ===== Screen Navigation =====
+function goToScreen(index) {
+  const screens = document.querySelectorAll('.screen');
+  const current = screens[currentScreen];
+  const next = screens[index];
+
+  if (currentScreen === index) return;
+
+  // Reset animations on next screen
+  next.querySelectorAll('.fade-in-up').forEach(el => {
+    el.style.animation = 'none';
+    el.offsetHeight; // trigger reflow
+    el.style.animation = '';
+  });
+
+  current.classList.remove('active');
+  current.classList.add('leaving');
+
+  setTimeout(() => {
+    current.classList.remove('leaving');
+    current.style.display = 'none';
+
+    next.classList.add('active');
+    next.querySelectorAll('.progress-step.current').forEach(el => {
+      el.style.animation = 'none';
+      el.offsetHeight;
+      el.style.animation = '';
+    });
+
+    currentScreen = index;
+
+    // Special: update will date
+    if (index === 4) {
+      document.getElementById('will-date').textContent = new Date().toLocaleDateString('zh-CN');
+      document.getElementById('will-asset-count').textContent = selectedAssets.size + ' 项';
+    }
+  }, 400);
+}
+
+// ===== State Selection =====
+function selectState(el, state) {
+  document.querySelectorAll('#screen-1 .state-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedState = state;
+  setTimeout(() => goToScreen(2), 500);
+}
+
+// ===== Asset Toggle =====
+function toggleAsset(el, type) {
+  el.classList.toggle('selected');
+  if (selectedAssets.has(type)) {
+    selectedAssets.delete(type);
+  } else {
+    selectedAssets.add(type);
+  }
+  document.getElementById('btn-to-detail').disabled = selectedAssets.size === 0;
+}
+
+// ===== AI Suggest =====
+function aiSuggest() {
+  const chip = event.target.closest('.ai-suggest');
+  chip.innerHTML = '<span class="sparkle">✦</span> AI已为你推荐：社交账号、云存储、照片';
+  chip.style.borderColor = 'rgba(196,167,120,0.3)';
+
+  // Auto-select some assets
+  ['social','storage','photos'].forEach(type => {
+    selectedAssets.add(type);
+    document.querySelectorAll('.asset-card').forEach(card => {
+      if (card.querySelector('.name').textContent === assetMeta[type].name) {
+        card.classList.add('selected');
+      }
+    });
+  });
+  document.getElementById('btn-to-detail').disabled = false;
+}
+
+// ===== Asset Detail =====
+function loadAssetDetail() {
+  const keys = Array.from(selectedAssets);
+  if (currentAssetIndex >= keys.length) {
+    goToScreen(4);
+    return;
+  }
+  const type = keys[currentAssetIndex];
+  const meta = assetMeta[type];
+  document.getElementById('current-asset-name').textContent = meta.name;
+  document.getElementById('detail-icon').textContent = meta.icon;
+  document.getElementById('detail-name').textContent = meta.name;
+  document.getElementById('detail-type').textContent = meta.type;
+
+  // Reset selections
+  document.querySelectorAll('#screen-3 .action-option').forEach(o => o.classList.remove('selected'));
+}
+
+// ===== Action Selection =====
+function selectAction(el, action) {
+  document.querySelectorAll('#screen-3 .action-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  const keys = Array.from(selectedAssets);
+  assetActions[keys[currentAssetIndex]] = action;
+}
+
+// ===== AI Suggest Action =====
+function aiSuggestAction() {
+  const chip = event.target.closest('.ai-suggest');
+  const keys = Array.from(selectedAssets);
+  const type = keys[currentAssetIndex];
+  const suggestions = {
+    social: 'memorial',
+    storage: 'bequeath',
+    photos: 'public',
+    chat: 'memorial',
+    finance: 'bequeath',
+    game: 'bequeath',
+    email: 'delete',
+    other: 'memorial'
+  };
+  const actionNames = {
+    memorial: '设为纪念状态',
+    bequeath: '遗赠给指定的人',
+    delete: '永久删除',
+    public: '公开所有内容'
+  };
+  const suggestion = suggestions[type] || 'memorial';
+  chip.innerHTML = '<span class="sparkle">✦</span> AI建议：' + assetMeta[type].name + '建议' + actionNames[suggestion];
+
+  // Auto-select
+  document.querySelectorAll('#screen-3 .action-option').forEach(o => {
+    o.classList.remove('selected');
+    if (o.onclick.toString().includes("'" + suggestion + "'")) {
+      o.classList.add('selected');
+    }
+  });
+  assetActions[type] = suggestion;
+}
+
+// ===== Next Asset =====
+function nextAsset() {
+  currentAssetIndex++;
+  const keys = Array.from(selectedAssets);
+  if (currentAssetIndex >= keys.length) {
+    goToScreen(4);
+  } else {
+    loadAssetDetail();
+  }
+}
+
+// ===== Tag Selection =====
+function selectTag(el) {
+  el.classList.toggle('selected');
+}
+
+// ===== Checkbox Toggle =====
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  document.getElementById('btn-confirm').disabled = !el.classList.contains('checked');
+}
+
+// ===== Override goToScreen for screen 3 =====
+const _goToScreen = goToScreen;
+goToScreen = function(index) {
+  if (index === 3 && currentScreen === 2) {
+    currentAssetIndex = 0;
+    loadAssetDetail();
+  }
+  _goToScreen(index);
+};
+
+// ===== Init =====
+document.addEventListener('DOMContentLoaded', () => {
+  // Set will date
+  document.getElementById('will-date').textContent = new Date().toLocaleDateString('zh-CN');
+});
+</script>
+
+</body>
+</html>

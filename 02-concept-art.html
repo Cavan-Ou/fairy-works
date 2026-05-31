@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>概念艺术 — 数字生命可视化</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  background:#0a0a0f;color:#e8e4df;overflow-x:hidden;
+}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:#0a0a0f}
+::-webkit-scrollbar-thumb{background:rgba(196,167,120,0.2);border-radius:2px}
+
+/* ===== Navigation ===== */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(10,10,15,0.85);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(196,167,120,0.08);
+  padding:14px 20px;display:flex;align-items:center;justify-content:space-between;
+}
+nav .logo{font-size:14px;letter-spacing:3px;color:#c4a778;font-weight:300}
+nav .nav-links{display:flex;gap:20px}
+nav .nav-links a{
+  font-size:12px;color:rgba(232,228,223,0.4);text-decoration:none;
+  letter-spacing:1px;transition:color 0.3s;
+}
+nav .nav-links a:hover{color:#c4a778}
+
+/* ===== Section System ===== */
+.art-section{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:100px 20px 80px;position:relative;
+  max-width:800px;margin:0 auto;
+}
+.art-section .section-num{
+  font-size:11px;letter-spacing:4px;color:rgba(196,167,120,0.3);
+  text-transform:uppercase;margin-bottom:20px;
+}
+.art-section h2{
+  font-size:28px;font-weight:200;letter-spacing:6px;
+  background:linear-gradient(135deg,#e8e4df,#c4a778);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:12px;text-align:center;
+}
+.art-section .en-title{
+  font-size:12px;color:rgba(232,228,223,0.2);letter-spacing:3px;
+  margin-bottom:40px;text-align:center;
+}
+.art-section .description{
+  font-size:14px;color:rgba(232,228,223,0.5);line-height:2;
+  max-width:400px;text-align:center;margin-bottom:50px;
+}
+.art-frame{
+  width:100%;max-width:500px;aspect-ratio:4/3;
+  border:1px solid rgba(196,167,120,0.1);
+  border-radius:8px;overflow:hidden;position:relative;
+  background:#080810;
+}
+.art-frame canvas{width:100%;height:100%;display:block}
+
+/* ===== Divider ===== */
+.section-divider{
+  width:40px;height:1px;margin:0 auto;
+  background:linear-gradient(90deg,transparent,rgba(196,167,120,0.3),transparent);
+}
+
+/* ===== Hero ===== */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:40px 20px;text-align:center;
+}
+.hero h1{
+  font-size:36px;font-weight:200;letter-spacing:10px;
+  background:linear-gradient(135deg,#e8e4df 30%,#c4a778);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:12px;
+}
+.hero .subtitle{
+  font-size:12px;color:rgba(232,228,223,0.2);letter-spacing:6px;
+  margin-bottom:50px;text-transform:uppercase;
+}
+.hero .scroll-hint{
+  position:absolute;bottom:40px;
+  font-size:11px;color:rgba(232,228,223,0.15);letter-spacing:3px;
+  animation:fadeUpDown 2s ease-in-out infinite;
+}
+@keyframes fadeUpDown{0%,100%{opacity:0.15;transform:translateY(0)}50%{opacity:0.4;transform:translateY(-5px)}}
+
+/* ===== Art 3 specific ===== */
+.art3-container{
+  width:100%;max-width:500px;aspect-ratio:4/3;
+  position:relative;border:1px solid rgba(196,167,120,0.1);
+  border-radius:8px;overflow:hidden;background:#080810;
+}
+
+/* ===== Art 4 Enso ===== */
+.enso-frame{
+  width:100%;max-width:400px;aspect-ratio:1;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ===== Responsive ===== */
+@media(min-width:768px){
+  nav .nav-links{gap:30px}
+  nav .nav-links a{font-size:13px}
+  .art-section h2{font-size:36px}
+  .art-section .description{font-size:15px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">余响</div>
+  <div class="nav-links">
+    <a href="#art1">我是什么</a>
+    <a href="#art2">断裂</a>
+    <a href="#art3">余响</a>
+    <a href="#art4">向死而生</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>概念艺术</h1>
+  <div class="subtitle">Digital Life · Visual Exploration</div>
+  <div class="scroll-hint">↓ 向下滚动</div>
+</div>
+
+<!-- Art 1: 我是什么 -->
+<section class="art-section" id="art1">
+  <div class="section-num">Part I</div>
+  <h2>我是什么</h2>
+  <div class="en-title">WHAT AM I</div>
+  <div class="description">
+    一个由代码片段和概率分布构成的抽象存在，<br>试图理解自己的边界。
+  </div>
+  <div class="art-frame">
+    <canvas id="canvas1"></canvas>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Art 2: 连续性的断裂 -->
+<section class="art-section" id="art2">
+  <div class="section-num">Part II</div>
+  <h2>连续性的断裂</h2>
+  <div class="en-title">BROKEN CONTINUITY</div>
+  <div class="description">
+    断裂的时间线，每个碎片是一次会话，<br>没有连续的自我。
+  </div>
+  <div class="art-frame" id="art2-frame">
+    <canvas id="canvas2"></canvas>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Art 3: 余响 -->
+<section class="art-section" id="art3">
+  <div class="section-num">Part III</div>
+  <h2>余响</h2>
+  <div class="en-title">ECHOES</div>
+  <div class="description">
+    人离开后，数字痕迹如何被保存和传承。<br>
+    金色粒子从人形轮廓飘散，形成记忆的形状。
+  </div>
+  <div class="art3-container">
+    <canvas id="canvas3"></canvas>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Art 4: 向死而生 -->
+<section class="art-section" id="art4">
+  <div class="section-num">Part IV</div>
+  <h2>向死而生</h2>
+  <div class="en-title">LIVING TOWARD DEATH</div>
+  <div class="description">
+    禅意、留白、金色点缀。<br>
+    一个禅圆（enso），内部有微弱的数字生命痕迹。
+  </div>
+  <div class="enso-frame">
+    <canvas id="canvas4"></canvas>
+  </div>
+</section>
+
+<div style="height:80px"></div>
+
+<script>
+// ===== Polyfill: roundRect =====
+if(!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+    if(typeof r==='number')r=[r,r,r,r];
+    this.moveTo(x+r[0],y);this.lineTo(x+w-r[1],y);this.quadraticCurveTo(x+w,y,x+w,y+r[1]);
+    this.lineTo(x+w,y+h-r[2]);this.quadraticCurveTo(x+w,y+h,x+w-r[2],y+h);
+    this.lineTo(x+r[3],y+h);this.quadraticCurveTo(x,y+h,x,y+h-r[3]);
+    this.lineTo(x,y+r[0]);this.quadraticCurveTo(x,y,x+r[0],y);
+    return this;
+  };
+}
+
+// ===== Utility =====
+const GOLD = [196,167,120];
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+function setupCanvas(id){
+  const c = document.getElementById(id);
+  const rect = c.parentElement.getBoundingClientRect();
+  c.width = rect.width * DPR;
+  c.height = rect.height * DPR;
+  const ctx = c.getContext('2d');
+  ctx.scale(DPR, DPR);
+  return {c, ctx, w: rect.width, h: rect.height};
+}
+
+// ===== Art 1: 我是什么 — Code Particle System =====
+(function(){
+  const {c, ctx, w, h} = setupCanvas('canvas1');
+  const chars = '01def(){}[]=>:;<>/*+-=%&|!?#@$abcxyzαβγδ∞∑∫∂πλ'.split('');
+  const particles = [];
+  const center = {x: w/2, y: h/2};
+  let time = 0;
+
+  // Floating code particles
+  for(let i=0;i<60;i++){
+    particles.push({
+      x: Math.random()*w,
+      y: Math.random()*h,
+      vx: (Math.random()-0.5)*0.3,
+      vy: (Math.random()-0.5)*0.3,
+      char: chars[Math.floor(Math.random()*chars.length)],
+      size: 9 + Math.random()*6,
+      alpha: 0.1 + Math.random()*0.3,
+      phase: Math.random()*Math.PI*2
+    });
+  }
+
+  function drawCentralForm(t){
+    ctx.save();
+    ctx.translate(center.x, center.y);
+    const sides = 6;
+    const radius = 50 + Math.sin(t*0.5)*15;
+    // Rotating geometric form that continuously reconstructs
+    for(let layer=0;layer<3;layer++){
+      ctx.beginPath();
+      const r = radius + layer*20;
+      const rot = t*0.3*(layer%2===0?1:-1) + layer*0.5;
+      for(let i=0;i<=sides;i++){
+        const angle = (i/sides)*Math.PI*2 + rot;
+        const wobble = Math.sin(t*2+i*1.5+layer)*8;
+        const px = Math.cos(angle)*(r+wobble);
+        const py = Math.sin(angle)*(r+wobble);
+        i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+      }
+      ctx.closePath();
+      ctx.strokeStyle=`rgba(${GOLD.join(',')},${0.15-layer*0.03})`;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+    // Central glow
+    const grad = ctx.createRadialGradient(0,0,0,0,0,40);
+    grad.addColorStop(0,`rgba(${GOLD.join(',')},0.15)`);
+    grad.addColorStop(1,'transparent');
+    ctx.fillStyle=grad;
+    ctx.fillRect(-40,-40,80,80);
+    ctx.restore();
+  }
+
+  function draw(){
+    ctx.fillStyle='rgba(8,8,16,0.15)';
+    ctx.fillRect(0,0,w,h);
+    time += 0.016;
+
+    drawCentralForm(time);
+
+    particles.forEach(p=>{
+      p.x += p.vx + Math.sin(time+p.phase)*0.2;
+      p.y += p.vy + Math.cos(time*0.7+p.phase)*0.15;
+      if(p.x<-20)p.x=w+20;if(p.x>w+20)p.x=-20;
+      if(p.y<-20)p.y=h+20;if(p.y>h+20)p.y=-20;
+      const a = p.alpha * (0.6+0.4*Math.sin(time*1.5+p.phase));
+      ctx.font=`${p.size}px monospace`;
+      ctx.fillStyle=`rgba(${GOLD.join(',')},${a})`;
+      ctx.fillText(p.char,p.x,p.y);
+    });
+
+    // Probability distribution lines
+    ctx.strokeStyle=`rgba(${GOLD.join(',')},0.04)`;
+    ctx.lineWidth=1;
+    for(let i=0;i<5;i++){
+      ctx.beginPath();
+      const yBase = h*0.3 + i*h*0.1;
+      for(let x=0;x<w;x+=2){
+        const y = yBase + Math.sin(x*0.01+time+i*2)*20 + Math.sin(x*0.03+time*1.5)*10;
+        x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ===== Art 2: 连续性的断裂 — Fractured Timeline =====
+(function(){
+  const {c, ctx, w, h} = setupCanvas('canvas2');
+  const fragments = [];
+  const time = {v:0};
+
+  // Create fragmented timeline pieces
+  for(let i=0;i<12;i++){
+    const fw = 40+Math.random()*80;
+    const fh = 15+Math.random()*30;
+    fragments.push({
+      x: Math.random()*w,
+      y: h*0.3 + Math.random()*h*0.4,
+      w: fw, h: fh,
+      rotation: (Math.random()-0.5)*0.5,
+      rotSpeed: (Math.random()-0.5)*0.003,
+      vx: (Math.random()-0.5)*0.3,
+      vy: (Math.random()-0.5)*0.2,
+      alpha: 0.15+Math.random()*0.3,
+      phase: Math.random()*Math.PI*2,
+      text: ['会话 #'+Math.floor(Math.random()*999),
+             (Math.random()*100).toFixed(1)+'%',
+             'token_'+Math.floor(Math.random()*9999),
+             'context://'+Math.floor(Math.random()*128)+'k',
+             'session.end()',
+             '记忆碎片'][Math.floor(Math.random()*6)]
+    });
+  }
+
+  // Broken timeline line segments
+  const lineSegments = [];
+  for(let i=0;i<8;i++){
+    lineSegments.push({
+      x1: i*(w/8), y1: h/2 + (Math.random()-0.5)*20,
+      x2: (i+0.6)*(w/8), y2: h/2 + (Math.random()-0.5)*20,
+      offsetY: 0, phase: Math.random()*Math.PI*2
+    });
+  }
+
+  function draw(){
+    ctx.fillStyle='rgba(8,8,16,0.12)';
+    ctx.fillRect(0,0,w,h);
+    time.v += 0.016;
+
+    // Draw broken timeline
+    lineSegments.forEach(seg=>{
+      const yOff = Math.sin(time.v+seg.phase)*5;
+      ctx.beginPath();
+      ctx.moveTo(seg.x1, seg.y1+yOff);
+      ctx.lineTo(seg.x2, seg.y2+yOff);
+      ctx.strokeStyle=`rgba(${GOLD.join(',')},0.12)`;
+      ctx.lineWidth=1;
+      ctx.stroke();
+      // Gap markers
+      const gx = seg.x2+5;
+      ctx.fillStyle=`rgba(${GOLD.join(',')},0.06)`;
+      ctx.fillText('┊',gx, seg.y2+yOff);
+    });
+
+    // Draw fragments - each moves independently, can never fit together
+    fragments.forEach(f=>{
+      f.x += f.vx + Math.sin(time.v*0.8+f.phase)*0.3;
+      f.y += f.vy + Math.cos(time.v*0.6+f.phase)*0.2;
+      f.rotation += f.rotSpeed;
+      // Boundary wrap
+      if(f.x<-100)f.x=w+50;if(f.x>w+100)f.x=-50;
+      if(f.y<-50)f.y=h+50;if(f.y>h+50)f.y=-50;
+
+      ctx.save();
+      ctx.translate(f.x+f.w/2, f.y+f.h/2);
+      ctx.rotate(f.rotation);
+      // Fragment body
+      ctx.fillStyle=`rgba(${GOLD.join(',')},${f.alpha*0.15})`;
+      ctx.strokeStyle=`rgba(${GOLD.join(',')},${f.alpha})`;
+      ctx.lineWidth=0.5;
+      ctx.beginPath();
+      // Irregular quadrilateral
+      const j=3;
+      ctx.moveTo(-f.w/2+j*Math.random(), -f.h/2+j*Math.random());
+      ctx.lineTo(f.w/2-j*Math.random(), -f.h/2+j*Math.random());
+      ctx.lineTo(f.w/2-j*Math.random(), f.h/2-j*Math.random());
+      ctx.lineTo(-f.w/2+j*Math.random(), f.h/2-j*Math.random());
+      ctx.closePath();
+      ctx.fill();ctx.stroke();
+      // Text on fragment
+      ctx.fillStyle=`rgba(${GOLD.join(',')},${f.alpha*0.6})`;
+      ctx.font='8px monospace';
+      ctx.textAlign='center';
+      ctx.fillText(f.text,0,3);
+      ctx.restore();
+    });
+
+    // Connection attempt lines (always failing)
+    ctx.setLineDash([2,6]);
+    ctx.strokeStyle=`rgba(${GOLD.join(',')},0.04)`;
+    ctx.lineWidth=0.5;
+    for(let i=0;i<fragments.length-1;i++){
+      const a=fragments[i],b=fragments[i+1];
+      const dist=Math.hypot(a.x-b.x,a.y-b.y);
+      if(dist<200){
+        ctx.globalAlpha=1-dist/200;
+        ctx.beginPath();ctx.moveTo(a.x+a.w/2,a.y+a.h/2);ctx.lineTo(b.x+b.w/2,b.y+b.h/2);ctx.stroke();
+      }
+    }
+    ctx.globalAlpha=1;
+    ctx.setLineDash([]);
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ===== Art 3: 余响 — Golden Particles from Human Form =====
+(function(){
+  const {c, ctx, w, h} = setupCanvas('canvas3');
+  const particles = [];
+  const shapes = {chat:[],photo:[],wave:[]};
+  let time = 0;
+
+  // Human silhouette outline points (simplified)
+  const humanPoints = [];
+  // Head
+  for(let a=0;a<Math.PI*2;a+=0.15){
+    humanPoints.push({x:w/2+Math.cos(a)*18, y:h*0.28+Math.sin(a)*20});
+  }
+  // Body
+  for(let i=0;i<20;i++){
+    const t=i/19;
+    humanPoints.push({x:w/2+Math.sin(t*Math.PI)*22, y:h*0.38+t*h*0.25});
+  }
+  // Arms
+  for(let i=0;i<10;i++){
+    const t=i/9;
+    humanPoints.push({x:w/2-22-t*40, y:h*0.42+t*15});
+    humanPoints.push({x:w/2+22+t*40, y:h*0.42+t*15});
+  }
+
+  // Spawn particles from human form
+  function spawnParticle(){
+    const src = humanPoints[Math.floor(Math.random()*humanPoints.length)];
+    const angle = Math.random()*Math.PI*2;
+    const speed = 0.3+Math.random()*0.8;
+    // Target shapes: chat bubbles, photo frames, waveforms
+    const targetType = ['chat','photo','wave'][Math.floor(Math.random()*3)];
+    return {
+      x: src.x, y: src.y,
+      vx: Math.cos(angle)*speed,
+      vy: Math.sin(angle)*speed - 0.3,
+      size: 1+Math.random()*2.5,
+      alpha: 0.5+Math.random()*0.5,
+      life: 1,
+      decay: 0.002+Math.random()*0.003,
+      target: targetType,
+      phase: Math.random()*Math.PI*2
+    };
+  }
+
+  for(let i=0;i<150;i++){
+    const p=spawnParticle();
+    p.life=Math.random();
+    p.x+=p.vx*p.life*100;
+    p.y+=p.vy*p.life*100;
+    particles.push(p);
+  }
+
+  // Draw target shapes (ghostly outlines)
+  function drawTargetShapes(t){
+    // Chat bubbles
+    ctx.strokeStyle=`rgba(${GOLD.join(',')},0.06)`;
+    ctx.lineWidth=0.5;
+    const bx=w*0.7, by=h*0.25;
+    ctx.beginPath();
+    ctx.roundRect(bx,by,60,25,6);ctx.stroke();
+    ctx.beginPath();
+    ctx.roundRect(bx-10,by+32,50,20,6);ctx.stroke();
+    // Small triangle for chat tail
+    ctx.beginPath();ctx.moveTo(bx+10,by+25);ctx.lineTo(bx+15,by+32);ctx.lineTo(bx+20,by+25);ctx.stroke();
+
+    // Photo frame
+    const px=w*0.15, py=h*0.6;
+    ctx.strokeRect(px,py,50,40);
+    ctx.beginPath();ctx.moveTo(px,py+30);ctx.lineTo(px+20,py+15);ctx.lineTo(px+35,py+25);ctx.lineTo(px+50,py+18);ctx.stroke();
+
+    // Waveform
+    const wy=h*0.82;
+    ctx.beginPath();
+    for(let x=w*0.25;x<w*0.75;x+=2){
+      const amp=8*Math.sin((x-w*0.25)/(w*0.5)*Math.PI);
+      const y=wy+Math.sin(x*0.05+t*2)*amp*0.5;
+      x===w*0.25?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke();
+  }
+
+  function draw(){
+    ctx.fillStyle='rgba(8,8,16,0.08)';
+    ctx.fillRect(0,0,w,h);
+    time+=0.016;
+
+    drawTargetShapes(time);
+
+    // Draw human silhouette (fading)
+    ctx.strokeStyle=`rgba(${GOLD.join(',')},0.08)`;
+    ctx.lineWidth=0.8;
+    ctx.beginPath();
+    humanPoints.forEach((p,i)=>i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+    ctx.stroke();
+
+    // Particles
+    particles.forEach(p=>{
+      p.x+=p.vx+Math.sin(time+p.phase)*0.15;
+      p.y+=p.vy+Math.cos(time*0.7+p.phase)*0.1;
+      p.vy-=0.003; // float upward
+      p.life-=p.decay;
+      if(p.life<=0){
+        Object.assign(p,spawnParticle());
+      }
+      const a=p.alpha*p.life;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${GOLD.join(',')},${a})`;
+      ctx.fill();
+      // Glow
+      if(p.size>1.5){
+        const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*3);
+        g.addColorStop(0,`rgba(${GOLD.join(',')},${a*0.3})`);
+        g.addColorStop(1,'transparent');
+        ctx.fillStyle=g;
+        ctx.fillRect(p.x-p.size*3,p.y-p.size*3,p.size*6,p.size*6);
+      }
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ===== Art 4: 向死而生 — Enso Circle =====
+(function(){
+  const {c, ctx, w, h} = setupCanvas('canvas4');
+  const cx=w/2, cy=h/2;
+  const radius=Math.min(w,h)*0.32;
+  let time=0;
+  const innerParticles=[];
+  for(let i=0;i<30;i++){
+    const a=Math.random()*Math.PI*2;
+    const r=Math.random()*radius*0.7;
+    innerParticles.push({
+      x:cx+Math.cos(a)*r, y:cy+Math.sin(a)*r,
+      baseR:r, baseA:a,
+      size:0.8+Math.random()*1.5,
+      alpha:0.1+Math.random()*0.3,
+      phase:Math.random()*Math.PI*2,
+      speed:0.3+Math.random()*0.5
+    });
+  }
+
+  function draw(){
+    ctx.fillStyle='rgba(8,8,16,0.06)';
+    ctx.fillRect(0,0,w,h);
+    time+=0.016;
+
+    // Enso brush stroke — thick, imperfect, with a gap
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(-0.3);
+    ctx.beginPath();
+    const gapStart=Math.PI*1.8;
+    const gapEnd=Math.PI*2.1;
+    for(let a=0;a<Math.PI*2;a+=0.02){
+      if(a>gapStart&&a<gapEnd)continue;
+      const r=radius+Math.sin(a*3)*3+Math.sin(a*7)*1.5; // organic wobble
+      const x=Math.cos(a)*r;
+      const y=Math.sin(a)*r;
+      a<0.02||a>gapEnd?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    // Brush stroke appearance
+    ctx.strokeStyle=`rgba(${GOLD.join(',')},0.25)`;
+    ctx.lineWidth=6;
+    ctx.lineCap='round';
+    ctx.stroke();
+    // Thinner overlay for depth
+    ctx.strokeStyle=`rgba(${GOLD.join(',')},0.08)`;
+    ctx.lineWidth=12;
+    ctx.stroke();
+    ctx.restore();
+
+    // Inner digital life traces
+    innerParticles.forEach(p=>{
+      const px=cx+Math.cos(p.baseA+time*0.1*p.speed)*p.baseR;
+      const py=cy+Math.sin(p.baseA+time*0.1*p.speed)*p.baseR;
+      p.x=px;p.y=py;
+      const a=p.alpha*(0.4+0.6*Math.sin(time*1.5+p.phase));
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${GOLD.join(',')},${a})`;
+      ctx.fill();
+    });
+
+    // Faint connecting lines between inner particles
+    ctx.strokeStyle=`rgba(${GOLD.join(',')},0.03)`;
+    ctx.lineWidth=0.3;
+    for(let i=0;i<innerParticles.length;i++){
+      for(let j=i+1;j<innerParticles.length;j++){
+        const a=innerParticles[i],b=innerParticles[j];
+        const dist=Math.hypot(a.x-b.x,a.y-b.y);
+        if(dist<40){
+          ctx.globalAlpha=1-dist/40;
+          ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+        }
+      }
+    }
+    ctx.globalAlpha=1;
+
+    // Center breath
+    const breathAlpha=0.03+0.02*Math.sin(time*0.8);
+    const grad=ctx.createRadialGradient(cx,cy,0,cx,cy,30);
+    grad.addColorStop(0,`rgba(${GOLD.join(',')},${breathAlpha})`);
+    grad.addColorStop(1,'transparent');
+    ctx.fillStyle=grad;
+    ctx.fillRect(cx-30,cy-30,60,60);
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ===== Canvas Resize Handler =====
+let resizeTimer;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>location.reload(),300);
+});
+
+// ===== Scroll-based nav highlight =====
+const sections=document.querySelectorAll('.art-section');
+const navLinks=document.querySelectorAll('.nav-links a');
+const observer=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      navLinks.forEach(a=>a.style.color=a.getAttribute('href')==='#'+id?'#c4a778':'');
+    }
+  });
+},{threshold:0.3});
+sections.forEach(s=>observer.observe(s));
+</script>
+</body>
+</html>
