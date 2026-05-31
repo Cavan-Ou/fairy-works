@@ -21,7 +21,8 @@ html,body{
   margin:0 auto;
   min-height:100vh;
   position:relative;
-  overflow:hidden;
+  overflow-x:hidden;
+  overflow-y:auto;
 }
 
 /* ===== Background Atmosphere ===== */
@@ -37,7 +38,7 @@ html,body{
 
 /* ===== Screen System ===== */
 .screen{
-  position:absolute;top:0;left:0;width:100%;min-height:100vh;
+  position:relative;top:0;left:0;width:100%;min-height:100vh;
   display:none;flex-direction:column;
   padding:24px 20px 40px;
   z-index:1;
